@@ -344,7 +344,7 @@ const VIEWER_PASSWORD = "elysium2026";
 const ADMIN_PASSWORD  = "elysiumadmin2026";
 
 // Paste your Google Apps Script Web App URL here (see Code.gs / README).
-const SHEET_API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwlrZmE1TSVG4bEYuShw6hiysJOsGU65J5yVgfCwOtlsuincBs3VQUomJVSgXJP1dfE/exec";
 
 /* ---------------- state ---------------- */
 let role = null; // "viewer" | "admin"
@@ -369,7 +369,7 @@ applyTheme(localStorage.getItem('noir_elysium_theme') || 'dark');
 
 /* ---------------- Google Sheet API ---------------- */
 function sheetConfigured(){
-  return SHEET_API_URL && SHEET_API_URL.indexOf('https://script.google.com/macros/s/AKfycbxh0w856n-zjQyE8w54B6Tjw-_0L5TkFVzSMMJZIU9WmfvxMLbZZklkvmBKxnwzclTE/exec') === -1;
+  return SHEET_API_URL && SHEET_API_URL.indexOf('https://script.google.com/macros/s/AKfycbwlrZmE1TSVG4bEYuShw6hiysJOsGU65J5yVgfCwOtlsuincBs3VQUomJVSgXJP1dfE/exec') === -1;
 }
 async function apiList(){
   const res = await fetch(SHEET_API_URL, { method: 'GET' });
