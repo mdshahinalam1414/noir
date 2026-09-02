@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noir Elysium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noir:#0a0908;
+    --charcoal:#151210;
+    --panel:#1c1815;
+    --line: rgba(201,169,97,0.18);
+    --gold:#c9a961;
+    --gold-bright:#e3c886;
+    --ivory:#e9e2d3;
+    --ash:#8f8878;
+    --wine:#5c2030;
+    --wine-bright:#7a2b41;
+    --shadow: rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--noir);
+    color:var(--ivory);
+    font-family:'Jost', sans-serif;
+    font-weight:300;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{ font-family:'Cormorant Garamond', serif; font-weight:500; }
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* ---------- background texture ---------- */
+  .noise-veil{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(201,169,97,0.07), transparent 45%),
+      radial-gradient(ellipse at 90% 110%, rgba(92,32,48,0.18), transparent 50%);
+  }
+
+  /* ================= GATE ================= */
+  #gate{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:32px;
+  }
+  .gate-box{
+    width:100%; max-width:420px;
+    text-align:center;
+  }
+  .mark{
+    width:46px; height:46px; margin:0 auto 28px;
+    border:1px solid var(--gold);
+    transform:rotate(45deg);
+    position:relative;
+  }
+  .mark::after{
+    content:"";
+    position:absolute; inset:7px;
+    border:1px solid var(--gold);
+    opacity:0.5;
+  }
+  .gate-box h1{
+    font-size:clamp(2.6rem, 8vw, 3.4rem);
+    letter-spacing:0.04em;
+    margin:0 0 10px;
+    color:var(--ivory);
+  }
+  .gate-box .slogan{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:var(--gold);
+    font-size:1.05rem;
+    letter-spacing:0.03em;
+    margin:0 0 48px;
+  }
+  .field{
+    position:relative;
+    margin-bottom:26px;
+    text-align:left;
+  }
+  .field input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--ivory);
+    font-family:'Jost',sans-serif;
+    font-size:1rem;
+    padding:12px 2px;
+    outline:none;
+    letter-spacing:0.02em;
+    transition:border-color .3s ease;
+  }
+  .field input:focus{ border-bottom-color:var(--gold); }
+  .field label{
+    display:block;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    color:var(--ash);
+    margin-bottom:8px;
+  }
+  .gate-actions{
+    display:flex; flex-direction:column; gap:12px; margin-top:8px;
+  }
+  .btn{
+    cursor:pointer;
+    border:1px solid var(--gold);
+    background:transparent;
+    color:var(--gold-bright);
+    padding:13px 20px;
+    font-size:0.82rem;
+    letter-spacing:0.12em;
+    transition:background .35s ease, color .35s ease;
+  }
+  .btn:hover{ background:var(--gold); color:var(--noir); }
+  .btn.ghost{
+    border-color:var(--line); color:var(--ash);
+  }
+  .btn.ghost:hover{ background:var(--panel); color:var(--ivory); }
+  .btn.wine{ border-color:var(--wine-bright); color:#e6b6c2; }
+  .btn.wine:hover{ background:var(--wine-bright); color:var(--ivory); }
+  .gate-error{
+    color:#c98686; font-size:0.8rem; min-height:1.2em; margin-top:16px; letter-spacing:0.03em;
+  }
+  .gate-hint{
+    margin-top:40px; font-size:0.72rem; color:#5f5a4f; letter-spacing:0.04em; line-height:1.7;
+  }
+
+  /* ================= APP ================= */
+  #app{ position:relative; z-index:1; display:none; min-height:100vh; }
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 5vw 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand .mini-mark{
+    width:16px; height:16px; border:1px solid var(--gold); transform:rotate(45deg);
+  }
+  .brand-text h2{ margin:0; font-size:1.5rem; letter-spacing:0.03em; }
+  .brand-text .tag{ font-size:0.68rem; letter-spacing:0.14em; color:var(--ash); }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .role-badge{
+    font-size:0.68rem; letter-spacing:0.12em; color:var(--gold);
+    border:1px solid var(--line); padding:7px 12px;
+  }
+  .icon-btn{
+    background:transparent; border:1px solid var(--line); color:var(--ash);
+    padding:9px 16px; font-size:0.72rem; letter-spacing:0.08em; cursor:pointer;
+    transition:all .3s ease;
+  }
+  .icon-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+
+  main{ padding:44px 5vw 100px; }
+  .gallery-head{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-bottom:34px; flex-wrap:wrap;
+  }
+  .gallery-head h3{ margin:0; font-size:1.9rem; letter-spacing:0.02em; }
+  .count-line{ font-size:0.78rem; color:var(--ash); letter-spacing:0.05em; }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:26px;
+  }
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    overflow:hidden;
+    cursor:pointer;
+    transition:border-color .35s ease, transform .35s ease;
+  }
+  .card:hover{ border-color:var(--gold); transform:translateY(-3px); }
+  .card .thumb{
+    width:100%; aspect-ratio:4/5; overflow:hidden; background:#000; position:relative;
+  }
+  .card .thumb img, .card .thumb video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:saturate(0.92) contrast(1.03);
+    transition:transform .6s ease;
+  }
+  .card:hover .thumb img, .card:hover .thumb video{ transform:scale(1.045); }
+  .media-badge{
+    position:absolute; top:10px; right:10px;
+    font-size:0.62rem; letter-spacing:0.1em; color:var(--gold-bright);
+    background:rgba(10,9,8,0.72); border:1px solid var(--line); padding:4px 8px;
+  }
+  .card-info{
+    padding:16px 16px 18px;
+    background:linear-gradient(180deg, var(--panel), var(--charcoal));
+  }
+  .card-info h4{ margin:0 0 5px; font-size:1.2rem; letter-spacing:0.01em; }
+  .card-info p{ margin:0; font-size:0.78rem; color:var(--ash); line-height:1.5; max-height:2.7em; overflow:hidden; }
+  .card-admin-controls{
+    position:absolute; top:10px; left:10px; display:flex; gap:6px; z-index:2;
+  }
+  .mini-btn{
+    background:rgba(10,9,8,0.78); border:1px solid var(--line); color:var(--ivory);
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem; cursor:pointer; transition:all .25s ease;
+  }
+  .mini-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .mini-btn.danger:hover{ border-color:var(--wine-bright); color:#e6b6c2; }
+
+  .add-tile{
+    border:1px dashed var(--line);
+    display:flex; align-items:center; justify-content:center;
+    min-height:260px;
+    flex-direction:column; gap:10px;
+    color:var(--ash);
+    cursor:pointer;
+    transition:all .3s ease;
+  }
+  .add-tile:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .add-tile .plus{ font-size:2rem; font-family:'Cormorant Garamond',serif; line-height:1; }
+
+  .empty-state{
+    text-align:center; padding:80px 20px; color:var(--ash);
+  }
+  .empty-state h3{ color:var(--ivory); font-size:1.6rem; margin-bottom:10px; }
+
+  /* ---------- modal shared ---------- */
+  .modal-veil{
+    position:fixed; inset:0; background:rgba(6,5,4,0.86);
+    display:none; align-items:center; justify-content:center;
+    z-index:50; padding:24px; overflow-y:auto;
+  }
+  .modal-veil.open{ display:flex; }
+  .modal-box{
+    background:var(--charcoal); border:1px solid var(--line);
+    width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
+    padding:34px;
+    position:relative;
+  }
+  .modal-close{
+    position:absolute; top:18px; right:18px;
+    background:transparent; border:none; color:var(--ash);
+    font-size:1.3rem; cursor:pointer; line-height:1;
+  }
+  .modal-close:hover{ color:var(--gold-bright); }
+  .modal-box h3{ margin:0 0 26px; font-size:1.7rem; }
+  .form-row{ margin-bottom:20px; }
+  .form-row label{
+    display:block; font-size:0.72rem; letter-spacing:0.1em; color:var(--ash); margin-bottom:8px;
+  }
+  .form-row input, .form-row textarea{
+    width:100%; background:var(--panel); border:1px solid var(--line); color:var(--ivory);
+    font-family:'Jost',sans-serif; font-size:0.9rem; padding:11px 12px; outline:none;
+    resize:vertical;
+  }
+  .form-row input:focus, .form-row textarea:focus{ border-color:var(--gold); }
+  .form-row .hint{ font-size:0.68rem; color:#635e52; margin-top:6px; }
+  .url-list{ display:flex; flex-direction:column; gap:8px; }
+  .url-row{ display:flex; gap:8px; }
+  .url-row input{ flex:1; }
+  .url-row button{
+    background:transparent; border:1px solid var(--line); color:var(--ash);
+    width:38px; cursor:pointer; font-size:0.9rem;
+  }
+  .url-row button:hover{ border-color:var(--wine-bright); color:#e6b6c2; }
+  .add-url-btn{
+    margin-top:8px; background:transparent; border:1px dashed var(--line); color:var(--ash);
+    padding:9px; width:100%; cursor:pointer; font-size:0.75rem; letter-spacing:0.06em;
+  }
+  .add-url-btn:hover{ border-color:var(--gold); color:var(--gold-bright); }
+  .modal-actions{ display:flex; gap:12px; margin-top:30px; }
+  .modal-actions .btn{ flex:1; text-align:center; }
+
+  /* ---------- lightbox ---------- */
+  .lightbox .modal-box{ max-width:900px; padding:0; background:var(--noir); }
+  .lb-header{ padding:26px 34px 14px; border-bottom:1px solid var(--line); }
+  .lb-header h3{ margin:0 0 6px; }
+  .lb-header p{ margin:0; color:var(--ash); font-size:0.85rem; line-height:1.6; }
+  .lb-media-strip{ padding:26px 34px; display:flex; flex-direction:column; gap:22px; }
+  .lb-item{ position:relative; }
+  .lb-item img, .lb-item video{ width:100%; display:block; background:#000; }
+  .lb-item iframe{ width:100%; aspect-ratio:16/9; border:none; display:block; background:#000; }
+  .lb-item-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  .lb-item-foot span{ font-size:0.68rem; color:var(--ash); letter-spacing:0.06em; }
+  .lb-download{
+    font-size:0.7rem; letter-spacing:0.08em; color:var(--gold-bright);
+    border:1px solid var(--line); padding:6px 12px; text-decoration:none;
+  }
+  .lb-download:hover{ border-color:var(--gold); }
+
+  @media (max-width:560px){
+    header.top{ flex-direction:column; align-items:flex-start; gap:14px; }
+    main{ padding:34px 5vw 80px; }
+    .modal-box{ padding:24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise-veil"></div>
+
+<!-- ================= LOGIN GATE ================= -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="mark"></div>
+    <h1>Noir&nbsp;Elysium</h1>
+    <p class="slogan">where desire meets elegance</p>
+
+    <div class="field">
+      <label for="pw-input">Password</label>
+      <input id="pw-input" type="password" autocomplete="off" placeholder="Enter your password">
+    </div>
+
+    <div class="gate-actions">
+      <button class="btn" id="enter-btn">Enter</button>
+    </div>
+    <div class="gate-error" id="gate-error"></div>
+    <div class="gate-hint">A single password unlocks the gallery. The administrator's password additionally unlocks editing.</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mini-mark"></div>
+      <div class="brand-text">
+        <h2>Noir Elysium</h2>
+        <div class="tag">where desire meets elegance</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="role-badge" id="role-badge">Viewer</span>
+      <button class="icon-btn" id="lock-btn">Lock</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="gallery-head">
+      <h3>The Collection</h3>
+      <span class="count-line" id="count-line">0 pieces</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<!-- ================= ADD / EDIT MODAL ================= -->
+<div class="modal-veil" id="edit-veil">
+  <div class="modal-box">
+    <button class="modal-close" id="edit-close">&times;</button>
+    <h3 id="edit-title">Add a piece</h3>
+    <form id="edit-form">
+      <div class="form-row">
+        <label>Title</label>
+        <input type="text" id="f-title" required placeholder="Name this piece">
+      </div>
+      <div class="form-row">
+        <label>Description</label>
+        <textarea id="f-desc" rows="3" placeholder="A few words about it"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Image links</label>
+        <div class="url-list" id="image-list"></div>
+        <button type="button" class="add-url-btn" id="add-image">+ add image link</button>
+        <div class="hint">Direct links to images (.jpg, .png, .webp, etc.), from any site.</div>
+      </div>
+      <div class="form-row">
+        <label>Video links</label>
+        <div class="url-list" id="video-list"></div>
+        <button type="button" class="add-url-btn" id="add-video">+ add video link</button>
+        <div class="hint">YouTube, Vimeo, or direct video file links (.mp4, .webm).</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="edit-cancel">Cancel</button>
+        <button type="submit" class="btn">Save piece</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= LIGHTBOX MODAL ================= -->
+<div class="modal-veil lightbox" id="lb-veil">
+  <div class="modal-box">
+    <button class="modal-close" id="lb-close">&times;</button>
+    <div class="lb-header">
+      <h3 id="lb-title"></h3>
+      <p id="lb-desc"></p>
+    </div>
+    <div class="lb-media-strip" id="lb-strip"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   NOIR ELYSIUM — configuration
+   Change these two passwords before you publish this site.
+   NOTE: because this is a static site with no server, anyone who views the
+   page source can find these values. This gate keeps out casual visitors,
+   it is not real security for sensitive content.
+   ========================================================================= */
+const VIEWER_PASSWORD = "elysium2026";
+const ADMIN_PASSWORD  = "elysiumadmin2026";
+
+const STORAGE_KEY = "noir_elysium_pieces";
+
+/* ---------------- state ---------------- */
+let role = null; // "viewer" | "admin"
+let pieces = [];
+let editingId = null;
+
+/* ---------------- storage ---------------- */
+function loadPieces(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    pieces = raw ? JSON.parse(raw) : [];
+  }catch(e){ pieces = []; }
+}
+function savePieces(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(pieces));
+}
+
+/* ---------------- gate ---------------- */
+const gate = document.getElementById('gate');
+const app = document.getElementById('app');
+const pwInput = document.getElementById('pw-input');
+const gateError = document.getElementById('gate-error');
+
+document.getElementById('enter-btn').addEventListener('click', tryEnter);
+pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryEnter(); });
+
+function tryEnter(){
+  const val = pwInput.value;
+  if(val === ADMIN_PASSWORD){
+    role = 'admin';
+    openApp();
+  } else if(val === VIEWER_PASSWORD){
+    role = 'viewer';
+    openApp();
+  } else {
+    gateError.textContent = "That password doesn't match. Try again.";
+    pwInput.value = '';
+  }
+}
+
+function openApp(){
+  gate.style.display = 'none';
+  app.style.display = 'block';
+  document.getElementById('role-badge').textContent = role === 'admin' ? 'Administrator' : 'Viewer';
+  loadPieces();
+  renderGrid();
+}
+
+document.getElementById('lock-btn').addEventListener('click', () => {
+  role = null;
+  pwInput.value = '';
+  gateError.textContent = '';
+  app.style.display = 'none';
+  gate.style.display = 'flex';
+});
+
+/* ---------------- video helpers ---------------- */
+function classifyVideo(url){
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+  if(yt) return { type:'youtube', embed:`https://www.youtube.com/embed/${yt[1]}` };
+  const vm = url.match(/vimeo\.com\/(\d+)/);
+  if(vm) return { type:'vimeo', embed:`https://player.vimeo.com/video/${vm[1]}` };
+  if(/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)) return { type:'direct', embed:url };
+  return { type:'link', embed:url };
+}
+
+/* ---------------- render gallery ---------------- */
+const grid = document.getElementById('grid');
+const countLine = document.getElementById('count-line');
+
+function renderGrid(){
+  grid.innerHTML = '';
+  countLine.textContent = pieces.length + (pieces.length === 1 ? ' piece' : ' pieces');
+
+  if(role === 'admin'){
+    const addTile = document.createElement('div');
+    addTile.className = 'add-tile';
+    addTile.innerHTML = `<div class="plus">+</div><div>Add a piece</div>`;
+    addTile.addEventListener('click', () => openEditModal(null));
+    grid.appendChild(addTile);
+  }
+
+  if(pieces.length === 0 && role !== 'admin'){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.gridColumn = '1/-1';
+    empty.innerHTML = `<h3>Nothing here yet</h3><p>The collection is still being assembled.</p>`;
+    grid.appendChild(empty);
+    return;
+  }
+
+  pieces.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const thumbUrl = (p.images && p.images[0]) || null;
+    const videoCount = (p.videos || []).length;
+    const imageCount = (p.images || []).length;
+
+    let thumbInner = '';
+    if(thumbUrl){
+      thumbInner = `<img src="${escapeAttr(thumbUrl)}" alt="${escapeAttr(p.title)}" loading="lazy">`;
+    } else if(videoCount > 0){
+      const v = classifyVideo(p.videos[0]);
+      thumbInner = v.type === 'direct'
+        ? `<video src="${escapeAttr(v.embed)}" muted></video>`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ash);font-family:'Cormorant Garamond',serif;font-size:1.1rem;">▷ video</div>`;
+    } else {
+      thumbInner = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#4a463c;font-family:'Cormorant Garamond',serif;">no media</div>`;
+    }
+
+    const badgeText = [
+      imageCount ? imageCount + (imageCount===1?' image':' images') : null,
+      videoCount ? videoCount + (videoCount===1?' video':' videos') : null
+    ].filter(Boolean).join(' · ');
+
+    card.innerHTML = `
+      ${role === 'admin' ? `
+      <div class="card-admin-controls">
+        <button class="mini-btn edit-btn" title="Edit">&#9998;</button>
+        <button class="mini-btn danger delete-btn" title="Delete">&times;</button>
+      </div>` : ''}
+      <div class="thumb">${thumbInner}${badgeText ? `<div class="media-badge">${badgeText}</div>` : ''}</div>
+      <div class="card-info">
+        <h4>${escapeHtml(p.title)}</h4>
+        <p>${escapeHtml(p.description || '')}</p>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      if(e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) return;
+      openLightbox(p);
+    });
+
+    if(role === 'admin'){
+      card.querySelector('.edit-btn').addEventListener('click', () => openEditModal(p.id));
+      card.querySelector('.delete-btn').addEventListener('click', () => deletePiece(p.id));
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+/* ---------------- lightbox ---------------- */
+const lbVeil = document.getElementById('lb-veil');
+const lbTitle = document.getElementById('lb-title');
+const lbDesc = document.getElementById('lb-desc');
+const lbStrip = document.getElementById('lb-strip');
+
+function openLightbox(p){
+  lbTitle.textContent = p.title;
+  lbDesc.textContent = p.description || '';
+  lbStrip.innerHTML = '';
+
+  (p.images || []).forEach(url => {
+    const item = document.createElement('div');
+    item.className = 'lb-item';
+    item.innerHTML = `
+      <img src="${escapeAttr(url)}" alt="${escapeAttr(p.title)}">
+      <div class="lb-item-foot">
+        <span>image</span>
+        <a class="lb-download" href="${escapeAttr(url)}" download target="_blank" rel="noopener">Download</a>
+      </div>`;
+    lbStrip.appendChild(item);
+  });
+
+  (p.videos || []).forEach(url => {
+    const v = classifyVideo(url);
+    const item = document.createElement('div');
+    item.className = 'lb-item';
+    let mediaEl;
+    if(v.type === 'direct'){
+      mediaEl = `<video src="${escapeAttr(v.embed)}" controls></video>`;
+    } else if(v.type === 'youtube' || v.type === 'vimeo'){
+      mediaEl = `<iframe src="${escapeAttr(v.embed)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+    } else {
+      mediaEl = `<div style="padding:24px;color:var(--ash);">Link: <a href="${escapeAttr(url)}" target="_blank" rel="noopener" style="color:var(--gold-bright)">${escapeHtml(url)}</a></div>`;
+    }
+    item.innerHTML = `
+      ${mediaEl}
+      <div class="lb-item-foot">
+        <span>${v.type}</span>
+        <a class="lb-download" href="${escapeAttr(url)}" download target="_blank" rel="noopener">Download</a>
+      </div>`;
+    lbStrip.appendChild(item);
+  });
+
+  if((p.images||[]).length === 0 && (p.videos||[]).length === 0){
+    lbStrip.innerHTML = `<p style="color:var(--ash)">No media attached to this piece.</p>`;
+  }
+
+  lbVeil.classList.add('open');
+}
+document.getElementById('lb-close').addEventListener('click', () => lbVeil.classList.remove('open'));
+lbVeil.addEventListener('click', e => { if(e.target === lbVeil) lbVeil.classList.remove('open'); });
+
+/* ---------------- add / edit modal ---------------- */
+const editVeil = document.getElementById('edit-veil');
+const editForm = document.getElementById('edit-form');
+const editTitle = document.getElementById('edit-title');
+const fTitle = document.getElementById('f-title');
+const fDesc = document.getElementById('f-desc');
+const imageList = document.getElementById('image-list');
+const videoList = document.getElementById('video-list');
+
+function urlRow(container, value=''){
+  const row = document.createElement('div');
+  row.className = 'url-row';
+  row.innerHTML = `<input type="url" placeholder="https://..." value="${escapeAttr(value)}"><button type="button">&times;</button>`;
+  row.querySelector('button').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+
+document.getElementById('add-image').addEventListener('click', () => urlRow(imageList));
+document.getElementById('add-video').addEventListener('click', () => urlRow(videoList));
+
+function openEditModal(id){
+  editingId = id;
+  imageList.innerHTML = '';
+  videoList.innerHTML = '';
+
+  if(id){
+    const p = pieces.find(x => x.id === id);
+    editTitle.textContent = 'Edit piece';
+    fTitle.value = p.title;
+    fDesc.value = p.description || '';
+    (p.images || []).forEach(u => urlRow(imageList, u));
+    (p.videos || []).forEach(u => urlRow(videoList, u));
+  } else {
+    editTitle.textContent = 'Add a piece';
+    fTitle.value = '';
+    fDesc.value = '';
+  }
+  if(imageList.children.length === 0) urlRow(imageList);
+  if(videoList.children.length === 0) urlRow(videoList);
+
+  editVeil.classList.add('open');
+}
+
+function closeEditModal(){
+  editVeil.classList.remove('open');
+  editingId = null;
+  editForm.reset();
+}
+document.getElementById('edit-close').addEventListener('click', closeEditModal);
+document.getElementById('edit-cancel').addEventListener('click', closeEditModal);
+editVeil.addEventListener('click', e => { if(e.target === editVeil) closeEditModal(); });
+
+editForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const images = Array.from(imageList.querySelectorAll('input')).map(i => i.value.trim()).filter(Boolean);
+  const videos = Array.from(videoList.querySelectorAll('input')).map(i => i.value.trim()).filter(Boolean);
+
+  if(editingId){
+    const p = pieces.find(x => x.id === editingId);
+    p.title = fTitle.value.trim();
+    p.description = fDesc.value.trim();
+    p.images = images;
+    p.videos = videos;
+  } else {
+    pieces.unshift({
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: fTitle.value.trim(),
+      description: fDesc.value.trim(),
+      images, videos,
+      createdAt: Date.now()
+    });
+  }
+  savePieces();
+  closeEditModal();
+  renderGrid();
+});
+
+function deletePiece(id){
+  if(!confirm('Remove this piece from the collection? This cannot be undone.')) return;
+  pieces = pieces.filter(p => p.id !== id);
+  savePieces();
+  renderGrid();
+}
+</script>
+</body>
+</html>
