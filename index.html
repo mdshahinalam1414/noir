@@ -369,7 +369,7 @@ applyTheme(localStorage.getItem('noir_elysium_theme') || 'dark');
 
 /* ---------------- Google Sheet API ---------------- */
 function sheetConfigured(){
-  return SHEET_API_URL && SHEET_API_URL.indexOf('PASTE_YOUR') === -1;
+  return SHEET_API_URL && SHEET_API_URL.indexOf('https://script.google.com/macros/s/AKfycbxbVoJDcaQCWoSCMbTv2v9hHa8cmmvXe3C9CQouOofvt0cm4284vtElknGbGlLzsoWX/exec') === -1;
 }
 async function apiList(){
   const res = await fetch(SHEET_API_URL, { method: 'GET' });
